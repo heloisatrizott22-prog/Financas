@@ -1,0 +1,29 @@
+name: Lembretes de cobrança
+
+on:
+  schedule:
+    # Todo dia às 23:38 UTC (6:38 da tarde em Nova York no inverno, 7:38 no verão)
+    - cron: "38 23 * * *"
+  workflow_dispatch:
+    inputs:
+      modo:
+        description: "Escreva 'teste' para mandar uma notificação de teste"
+        required: false
+        default: "normal"
+
+jobs:
+  avisar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --omit=dev
+        working-directory: notifier
+      - run: node send.mjs
+        working-directory: notifier
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          APP_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          MODO: ${{ github.event.inputs.modo }}

@@ -1,0 +1,232 @@
+[
+ {
+  "t": "assin",
+  "nome": "LA Fitness — personal trainer",
+  "valor": 520,
+  "freq": "Mensal",
+  "status": "ativa",
+  "onde": "Cartão Consumers",
+  "prox": "2026-11-28",
+  "obs": ""
+ },
+ {
+  "t": "assin",
+  "nome": "LA Fitness — plano",
+  "valor": 53.3,
+  "freq": "Mensal",
+  "status": "ativa",
+  "onde": "Santander débito",
+  "prox": "2026-11-25",
+  "obs": ""
+ },
+ {
+  "t": "assin",
+  "nome": "BetterMe",
+  "valor": 38.95,
+  "freq": "Mensal",
+  "status": "ativa",
+  "onde": "Cartão Consumers",
+  "prox": "2026-12-04",
+  "obs": "Mais um app de fitness"
+ },
+ {
+  "t": "assin",
+  "nome": "Spotify",
+  "valor": 23.45,
+  "freq": "Mensal",
+  "status": "ativa",
+  "onde": "Santander débito",
+  "prox": "2026-12-01",
+  "obs": "O YouTube Premium já inclui música"
+ },
+ {
+  "t": "assin",
+  "nome": "Disney+",
+  "valor": 23.45,
+  "freq": "Mensal",
+  "status": "ativa",
+  "onde": "Santander débito",
+  "prox": "2026-11-27",
+  "obs": ""
+ },
+ {
+  "t": "assin",
+  "nome": "YouTube Premium",
+  "valor": 22.38,
+  "freq": "Mensal",
+  "status": "ativa",
+  "onde": "Apple",
+  "prox": "2026-12-01",
+  "obs": "$20.99 + imposto"
+ },
+ {
+  "t": "assin",
+  "nome": "ChatGPT Plus",
+  "valor": 21.31,
+  "freq": "Mensal",
+  "status": "ativa",
+  "onde": "Apple",
+  "prox": "2026-12-06",
+  "obs": "$19.99 + imposto"
+ },
+ {
+  "t": "assin",
+  "nome": "Netflix",
+  "valor": 21.31,
+  "freq": "Mensal",
+  "status": "ativa",
+  "onde": "Cartão Consumers",
+  "prox": "2026-12-13",
+  "obs": ""
+ },
+ {
+  "t": "assin",
+  "nome": "Amazon Prime",
+  "valor": 15.98,
+  "freq": "Mensal",
+  "status": "ativa",
+  "onde": "Cartão Amazon",
+  "prox": "2026-11-19",
+  "obs": ""
+ },
+ {
+  "t": "assin",
+  "nome": "DoorDash DashPass",
+  "valor": 9.99,
+  "freq": "Mensal",
+  "status": "ativa",
+  "onde": "Cartão Consumers",
+  "prox": "2026-12-09",
+  "obs": ""
+ },
+ {
+  "t": "assin",
+  "nome": "iCloud+ 2 TB",
+  "valor": 9.99,
+  "freq": "Mensal",
+  "status": "ativa",
+  "onde": "Apple",
+  "prox": "2026-12-01",
+  "obs": "Você também paga 2 TB no Google Photos"
+ },
+ {
+  "t": "assin",
+  "nome": "Rocket Money Premium",
+  "valor": 8,
+  "freq": "Mensal",
+  "status": "ativa",
+  "onde": "Santander débito",
+  "prox": "2026-11-29",
+  "obs": ""
+ },
+ {
+  "t": "assin",
+  "nome": "Amazon — assinatura digital",
+  "valor": 5.32,
+  "freq": "Mensal",
+  "status": "ativa",
+  "onde": "Cartão Amazon",
+  "prox": "2026-11-24",
+  "obs": "Ver qual é em Amazon > Memberships & Subscriptions"
+ },
+ {
+  "t": "assin",
+  "nome": "Natural Cycles",
+  "valor": 149,
+  "freq": "Anual",
+  "status": "ativa",
+  "onde": "Cartão Consumers",
+  "prox": "2027-09-12",
+  "obs": "Mesma função do Flo"
+ },
+ {
+  "t": "assin",
+  "nome": "Peacock",
+  "valor": 129.99,
+  "freq": "Anual",
+  "status": "ativa",
+  "onde": "Apple",
+  "prox": "2027-04-25",
+  "obs": ""
+ },
+ {
+  "t": "assin",
+  "nome": "Microsoft 365",
+  "valor": 106.61,
+  "freq": "Anual",
+  "status": "ativa",
+  "onde": "Cartão Consumers",
+  "prox": "2027-10-03",
+  "obs": "Confirmar se é anual"
+ },
+ {
+  "t": "assin",
+  "nome": "Google Photos 2 TB",
+  "valor": 99.99,
+  "freq": "Anual",
+  "status": "ativa",
+  "onde": "Apple",
+  "prox": "2027-01-27",
+  "obs": "Você também paga 2 TB no iCloud"
+ },
+ {
+  "t": "assin",
+  "nome": "Midjourney",
+  "valor": 96,
+  "freq": "Anual",
+  "status": "ativa",
+  "onde": "Cartão Consumers",
+  "prox": "2027-10-07",
+  "obs": "Confirmar se é anual"
+ },
+ {
+  "t": "assin",
+  "nome": "Hallmark+",
+  "valor": 79.99,
+  "freq": "Anual",
+  "status": "ativa",
+  "onde": "Apple",
+  "prox": "2026-12-09",
+  "obs": "Decidir antes de 9/dez"
+ },
+ {
+  "t": "assin",
+  "nome": "Apple Fitness+",
+  "valor": 79.99,
+  "freq": "Anual",
+  "status": "ativa",
+  "onde": "Apple",
+  "prox": "2027-04-30",
+  "obs": ""
+ },
+ {
+  "t": "assin",
+  "nome": "UP Faith & Family",
+  "valor": 59.99,
+  "freq": "Anual",
+  "status": "ativa",
+  "onde": "Apple",
+  "prox": "2027-11-10",
+  "obs": "Renovou em 10/nov — dá para pedir reembolso em reportaproblem.apple.com"
+ },
+ {
+  "t": "assin",
+  "nome": "Befit",
+  "valor": 39.99,
+  "freq": "Anual",
+  "status": "ativa",
+  "onde": "Apple",
+  "prox": "2027-10-21",
+  "obs": ""
+ },
+ {
+  "t": "assin",
+  "nome": "Flo",
+  "valor": 24.99,
+  "freq": "Anual",
+  "status": "ativa",
+  "onde": "Apple",
+  "prox": "2027-11-08",
+  "obs": "Renovou em 8/nov"
+ }
+]

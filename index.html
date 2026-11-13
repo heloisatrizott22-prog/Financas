@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Minhas Finanças</title>
+<meta name="theme-color" content="#0b0d0c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Finanças">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="login hide">
+  <div class="orb l"><i></i></div>
+  <h1>Minhas Finanças</h1>
+  <p class="sub" id="login-sub">Entre para ver suas contas.</p>
+  <form id="login-form" autocomplete="on">
+    <label>E-mail</label><input name="email" type="email" required autocomplete="email">
+    <label>Senha</label><input name="senha" type="password" required minlength="6" autocomplete="current-password">
+    <div class="btns"><button type="submit" class="btn pri" id="login-btn">Entrar</button></div>
+    <div class="err" id="login-err"></div>
+  </form>
+  <button class="link" id="login-toggle">Primeira vez? Criar conta</button>
+  <button class="link" id="login-reset">Esqueci a senha</button>
+</div>
+
+<div id="app" class="hide">
+<main>
+  <div id="status" class="status hide"></div>
+
+  <!-- INÍCIO -->
+  <section id="v-inicio">
+    <div class="topbar"><h1 id="ola">Olá!</h1><button class="iconbtn" id="b-config" aria-label="Configurações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
+    <p class="sub" id="hoje"></p>
+    <button class="ask" id="b-ask"><div class="orb m"><i></i></div><div class="q"><b>Pergunte para a <span class="nome-assist">Lumi</span></b><span>"Qual meu saldo?" · "Gastei 20 no café"</span></div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+    <div id="aviso-notif"></div>
+    <div class="grid">
+      <div class="card stat big hero"><div class="lbl">Patrimônio (guardado + investido)</div><div class="val" id="s-patr">—</div></div>
+      <div class="card stat"><div class="lbl">Gastos neste mês</div><div class="val" id="s-gastos">—</div></div>
+      <div class="card stat"><div class="lbl">Assinaturas por mês</div><div class="val" id="s-assin">—</div></div>
+      <div class="card stat"><div class="lbl">Guardado</div><div class="val" id="s-guard">—</div></div>
+      <div class="card stat"><div class="lbl">Investido</div><div class="val" id="s-inv">—</div></div>
+    </div>
+    <h2>Próximas cobranças (30 dias)</h2>
+    <div id="prox" class="list"></div>
+    <h2>Últimos gastos</h2>
+    <div id="ultimos" class="list"></div>
+  </section>
+
+  <!-- GASTOS -->
+  <section id="v-gastos" class="hide">
+    <h1>Gastos e entradas</h1>
+    <p class="sub">Tudo junto: cartões, conta e dinheiro. Toque no + para anotar.</p>
+    <div id="g-import"></div>
+    <div class="monthnav"><button id="m-prev" aria-label="Mês anterior">‹</button><b id="m-label"></b><button id="m-next" aria-label="Próximo mês">›</button></div>
+    <div class="grid">
+      <div class="card stat"><div class="lbl">Gastos</div><div class="val" id="g-total">$0.00</div></div>
+      <div class="card stat"><div class="lbl">Entradas</div><div class="val" id="g-entr" style="color:var(--accent)">$0.00</div></div>
+      <div class="card stat big"><div class="lbl">Saldo do mês</div><div class="val" id="g-saldo">—</div></div>
+    </div>
+    <div class="chips" id="g-contas" style="margin:12px 0"></div>
+    <div class="card" id="g-cats"></div>
+    <h2>Lançamentos</h2>
+    <div id="g-list" class="list"></div>
+  </section>
+
+  <!-- ASSINATURAS -->
+  <section id="v-assin" class="hide">
+    <h1>Assinaturas</h1>
+    <p class="sub">Toque numa assinatura para mudar o status quando cancelar.</p>
+    <div class="grid">
+      <div class="card stat"><div class="lbl">Ainda cobrando / mês</div><div class="val" id="a-mes">—</div></div>
+      <div class="card stat"><div class="lbl">Por ano</div><div class="val" id="a-ano">—</div></div>
+      <div class="card stat big"><div class="lbl">Economia por ano com o que você cancelou</div><div class="val" id="a-econ" style="color:var(--accent)">—</div></div>
+    </div>
+    <div class="chips" style="margin:16px 0 10px" id="a-filtro">
+      <button class="chip on" data-f="todas">Todas</button>
+      <button class="chip" data-f="ativa">Ativas</button>
+      <button class="chip" data-f="cancelar">Vou cancelar</button>
+      <button class="chip" data-f="cancelada">Canceladas</button>
+    </div>
+    <div id="a-list" class="list"></div>
+  </section>
+
+  <!-- PATRIMÔNIO -->
+  <section id="v-patr" class="hide">
+    <h1>Economias e investimentos</h1>
+    <p class="sub">Atualize o valor de cada um de vez em quando.</p>
+    <div class="grid">
+      <div class="card stat"><div class="lbl">Guardado</div><div class="val" id="p-guard">—</div></div>
+      <div class="card stat"><div class="lbl">Investido</div><div class="val" id="p-inv">—</div></div>
+    </div>
+    <h2>Guardado</h2>
+    <div id="p-econ" class="list"></div>
+    <h2>Investido</h2>
+    <div id="p-invs" class="list"></div>
+  </section>
+</main>
+
+<button class="fab hide" id="fab" aria-label="Adicionar">+</button>
+
+<nav class="tabs">
+  <button data-v="inicio" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Início</button>
+  <button data-v="gastos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg>Gastos</button>
+  <button class="plus" id="b-plus" aria-label="Lançar gasto"><span>+</span></button>
+  <button data-v="assin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></svg>Assinaturas</button>
+  <button data-v="patr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Patrimônio</button>
+</nav>
+</div>
+
+
+<!-- LANÇAR RÁPIDO -->
+<section class="full" id="lancar" aria-label="Lançar">
+  <div class="head"><button class="small" id="l-mais">Mais detalhes</button><button class="x" id="l-x" aria-label="Fechar">✕</button></div>
+  <div class="top">
+    <div class="orb m"><i></i></div>
+    <div class="tipo"><button class="saida on" data-tipo="gasto">Saída</button><button class="entrada" data-tipo="entrada">Entrada</button></div>
+    <div class="quanto">Quanto foi?</div>
+    <div class="valor zero" id="l-valor">$0.00</div>
+  </div>
+  <div class="campos">
+    <input id="l-desc" placeholder="O que foi? Ex.: almoço" autocomplete="off" enterkeyhint="done">
+    <div class="duo"><select id="l-cat"></select><select id="l-conta"></select></div>
+  </div>
+  <div class="teclado" id="l-teclado">
+    <button>1</button><button>2</button><button>3</button>
+    <button>4</button><button>5</button><button>6</button>
+    <button>7</button><button>8</button><button>9</button>
+    <button>00</button><button>0</button><button data-k="del" aria-label="Apagar">⌫</button>
+  </div>
+  <button class="lancar-btn" id="l-ok" disabled>Lançar gasto</button>
+</section>
+
+<!-- ASSISTENTE -->
+<section class="full" id="chat" aria-label="Assistente">
+  <div class="head"><div class="who"><div class="orb s"><i></i></div><div><b class="nome-assist">Lumi</b><span>sua assistente de finanças</span></div></div><button class="x" id="c-x" aria-label="Fechar">✕</button></div>
+  <div class="msgs" id="c-msgs"></div>
+  <div class="sugs" id="c-sugs"></div>
+  <form class="compose" id="c-form"><input id="c-in" placeholder="Pergunte ou anote um gasto…" autocomplete="off" enterkeyhint="send"><button aria-label="Enviar">↑</button></form>
+</section>
+
+<div class="sheet-bg" id="sheet-bg"></div>
+<div class="sheet" id="sheet"><form id="form" autocomplete="off"></form></div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
