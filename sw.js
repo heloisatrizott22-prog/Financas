@@ -1,5 +1,5 @@
 // Service worker: deixa o app abrir rápido e recebe as notificações.
-const CACHE = "financas-v5";
+const CACHE = "financas-v6";
 const SHELL = ["./", "./index.html", "./styles.css", "./app.js", "./firebase-config.js", "./manifest.webmanifest", "./icons/icon-192.png"];
 
 self.addEventListener("install", e => {

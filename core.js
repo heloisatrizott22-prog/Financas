@@ -111,8 +111,8 @@ function render(){
     return `<button type="button" class="row" data-edit="${esc(b.id)}"><div class="main"><div class="t">${esc(b.nome)}</div><div class="s">${esc(b.onde||"")}${b.onde&&at?" · ":""}${at}</div>${meta}</div><div class="amt">${money(+b.valor)}</div></button>`;
   };
   const ec=bens.filter(b=>b.tipo!=="Investimento"), iv=bens.filter(b=>b.tipo==="Investimento");
-  $("#p-econ").innerHTML=ec.length?ec.map(rowBem).join(""):'<div class="empty">Toque no + para adicionar uma poupança, caixinha ou dinheiro guardado.</div>';
-  $("#p-invs").innerHTML=iv.length?iv.map(rowBem).join(""):'<div class="empty">Toque no + para adicionar um investimento.</div>';
+  $("#p-econ").innerHTML=ec.length?ec.map(rowBem).join(""):'<div class="empty">Toque em "+ Adicionar guardado" para colocar poupança, caixinha ou dinheiro guardado.</div>';
+  $("#p-invs").innerHTML=iv.length?iv.map(rowBem).join(""):'<div class="empty">Toque em "+ Adicionar investimento" para colocar ações, CDB, corretora…</div>';
 
   if(opts.afterRender) opts.afterRender(items);
 }
@@ -150,6 +150,9 @@ $("#m-next").onclick=()=>{const[y,m]=mes.split("-").map(Number);mes=mesDe(new Da
 $("#a-filtro").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;filtro=b.dataset.f;document.querySelectorAll("#a-filtro .chip").forEach(c=>c.classList.toggle("on",c===b));render()};
 $("#g-contas").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;contaFiltro=b.dataset.conta;render()};
 document.addEventListener("click",e=>{const r=e.target.closest("[data-edit]");if(r){const it=items.find(i=>i.id===r.dataset.edit);if(it)abrir(it.t,it)}});
+if($("#add-econ")) $("#add-econ").onclick=()=>abrir("bem",null,{tipo:"Economia"});
+if($("#add-inv")) $("#add-inv").onclick=()=>abrir("bem",null,{tipo:"Investimento"});
+if($("#add-assin")) $("#add-assin").onclick=()=>abrir("assin");
 $("#fab").onclick=()=>{ if(view==="assin") abrir("assin"); else if(view==="patr") abrir("bem"); else abrir("gasto"); };
 
 // ---------- FORMULÁRIO ----------

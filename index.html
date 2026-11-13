@@ -14,7 +14,7 @@
 <link rel="icon" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=5">
+<link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
 
@@ -88,6 +88,7 @@
       <button class="chip" data-f="cancelar">Vou cancelar</button>
       <button class="chip" data-f="cancelada">Canceladas</button>
     </div>
+    <button class="addbtn" id="add-assin" style="margin:0 0 10px">+ Nova assinatura</button>
     <div id="a-list" class="list"></div>
   </section>
 
@@ -99,9 +100,9 @@
       <div class="card stat"><div class="lbl">Guardado</div><div class="val" id="p-guard">—</div></div>
       <div class="card stat"><div class="lbl">Investido</div><div class="val" id="p-inv">—</div></div>
     </div>
-    <h2>Guardado</h2>
+    <div class="sechead"><h2>Guardado</h2><button class="addbtn" id="add-econ">+ Adicionar guardado</button></div>
     <div id="p-econ" class="list"></div>
-    <h2>Investido</h2>
+    <div class="sechead"><h2>Investido</h2><button class="addbtn" id="add-inv">+ Adicionar investimento</button></div>
     <div id="p-invs" class="list"></div>
   </section>
 </main>
@@ -151,6 +152,6 @@
 <div class="sheet-bg" id="sheet-bg"></div>
 <div class="sheet" id="sheet"><form id="form" autocomplete="off"></form></div>
 
-<script type="module" src="app.js?v=5"></script>
+<script type="module" src="app.js?v=6"></script>
 </body>
 </html>
