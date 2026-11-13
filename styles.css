@@ -57,16 +57,12 @@ h2{font-size:13px;margin:24px 0 10px;color:var(--muted);font-weight:600;text-tra
 .ask .q b{display:block;font-size:15px}
 .ask .q span{font-size:13px;color:var(--muted)}
 
-/* Mascote */
-.orb{position:relative;border-radius:50%;flex-shrink:0;
-  background:radial-gradient(circle at 35% 30%,#d9ffe6 0 8%,#7ff0a9 22%,#22c55e 52%,#0f5f31 80%,#08301a 100%);
-  box-shadow:0 0 24px var(--glow),0 0 70px rgba(74,222,128,.18),inset -6px -8px 18px rgba(0,0,0,.35)}
-.orb::before,.orb::after{content:"";position:absolute;top:44%;width:11%;height:15%;background:#06210f;border-radius:50%}
-.orb::before{left:33%} .orb::after{right:33%}
-.orb i{position:absolute;left:38%;right:38%;top:64%;height:7%;border:0;border-bottom:3px solid #06210f;border-radius:0 0 50% 50%}
-.orb.s{width:42px;height:42px} .orb.s i{border-bottom-width:2px}
+/* Mascote: cofrinho */
+.orb{position:relative;flex-shrink:0;display:block}
+.orb svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 10px rgba(74,222,128,.45)) drop-shadow(0 0 26px rgba(74,222,128,.18))}
+.orb.s{width:42px;height:42px}
 .orb.m{width:52px;height:52px}
-.orb.l{width:120px;height:120px} .orb.l i{border-bottom-width:5px}
+.orb.l{width:120px;height:120px}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .orb.l{animation:float 4s ease-in-out infinite}
 
@@ -147,5 +143,4 @@ input,select,textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;b
 .login .sub{text-align:center}
 .link{background:none;border:0;color:var(--accent);font:inherit;font-size:14px;padding:10px 0;cursor:pointer;display:block;margin:6px auto 0}
 .ask .q b span{display:inline;font-size:inherit;color:var(--accent)}
-#lancar .top .orb{width:84px;height:84px;margin:4px 0 6px;animation:float 4s ease-in-out infinite}
-#lancar .top .orb i{border-bottom-width:4px}
+#lancar .top .orb{width:96px;height:96px;margin:0 0 4px;animation:float 4s ease-in-out infinite}
