@@ -147,3 +147,12 @@ input,select,textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;b
 .sechead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:24px 0 10px}
 .sechead h2{margin:0}
 .addbtn{background:var(--accent-soft);color:var(--accent);border:1px solid #2b5a3c;border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.descrow{display:flex;gap:8px}
+.descrow input{flex:1;min-width:0}
+.emobtn{width:54px;flex-shrink:0;font-size:24px;background:var(--card);border:1px solid var(--line);border-radius:14px;cursor:pointer;padding:0}
+.emogrid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:8px;max-height:200px;overflow-y:auto}
+.emogrid button{font-size:24px;background:none;border:0;padding:6px 0;border-radius:10px;cursor:pointer}
+.emogrid button.on,.emogrid button:active{background:var(--accent-soft)}
+.emogrid .auto{grid-column:1/-1;font-size:13px;font-weight:600;color:var(--accent);padding:8px}
+.ic{font-size:20px}
+#lancar .emogrid{max-height:150px}

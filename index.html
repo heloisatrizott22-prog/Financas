@@ -14,7 +14,7 @@
 <link rel="icon" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=6">
+<link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
 
@@ -129,7 +129,8 @@
     <div class="valor zero" id="l-valor">$0.00</div>
   </div>
   <div class="campos">
-    <input id="l-desc" placeholder="O que foi? Ex.: almoço" autocomplete="off" enterkeyhint="done">
+    <div class="descrow"><button type="button" class="emobtn" id="l-emoji" aria-label="Escolher emoji">💸</button><input id="l-desc" placeholder="O que foi? Ex.: almoço" autocomplete="off" enterkeyhint="done"></div>
+    <div class="emogrid hide" id="l-grid"></div>
     <div class="duo"><select id="l-cat"></select><select id="l-conta"></select></div>
   </div>
   <div class="teclado" id="l-teclado">
@@ -152,6 +153,6 @@
 <div class="sheet-bg" id="sheet-bg"></div>
 <div class="sheet" id="sheet"><form id="form" autocomplete="off"></form></div>
 
-<script type="module" src="app.js?v=6"></script>
+<script type="module" src="app.js?v=7"></script>
 </body>
 </html>

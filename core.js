@@ -118,10 +118,39 @@ function render(){
 }
 const ICONES={"Mercado":"🛒","Delivery e restaurantes":"🍔","Combustível e pedágio":"⛽","Seguro do carro":"🚗","Carro (outros)":"🔧","Casa":"🏠","Contas da casa":"💡","Compras":"🛍️","Beleza":"💅","Academia":"🏋️","Saúde":"🩺","Transporte (Uber)":"🚕","Lazer":"🎉","Viagem":"✈️","Assinaturas":"🔁","Trabalho e ferramentas":"🧰","Transferências (Zelle e outros)":"↔️","Saque em dinheiro":"💵","Taxas e juros":"⚠️","Outros":"•","Renda":"💰","Pagamento de fatura":"💳"};
 const ic=c=>`<div class="ic">${ICONES[c]||"•"}</div>`;
+const EMOJIS=["☕","🍔","🍕","🥪","🍣","🍽️","🥐","🍦","🍺","🛵","🛒","🥦","🍎","⛽","🚕","🚗","🛣️","🛡️","🏋️","💅","💇","💊","🩺","👕","👟","👜","💍","📦","🎁","🏠","💡","📶","📱","💻","📺","🎵","🎬","🎮","✈️","🏨","🐶","👶","📚","🔨","🧰","📮","💸","💵","💳","⚠️","💰","🎉","⛪","❤️","🧾","🔁"];
+const EMO_RE=[
+  [/caf[eé]|starbucks|dunkin|coffee/i,"☕"],[/pizza/i,"🍕"],[/burger|hamb[uú]rg|mcdonald|wendy|five guys/i,"🍔"],[/subway|sandu[ií]|sandwich/i,"🥪"],
+  [/sushi|japon/i,"🍣"],[/a[cç]a[ií]|sorvete|ice cream/i,"🍦"],[/padaria|bakery|p[aã]o/i,"🥐"],[/cerveja|bar\b|drink|vinho/i,"🍺"],
+  [/doordash|uber ?eats|ifood|delivery|grubhub/i,"🛵"],[/almo[cç]o|jantar|restaurante|comida|lanche|snack|cafe\b|seabra/i,"🍽️"],
+  [/mercado|walmart|fine ?fare|save ?smart|costco|aldi|shoprite|feira|grocery/i,"🛒"],[/gasolina|combust|posto|citgo|sunoco|wawa|shell|exxon|jersey gas|phillips|bj'?s fuel/i,"⛽"],
+  [/uber|lyft|t[aá]xi/i,"🚕"],[/ezpass|ped[aá]gio|toll/i,"🛣️"],[/geico|seguro/i,"🛡️"],[/carro|mec[aâ]nic|oficina/i,"🚗"],
+  [/academia|personal|la fitness|gym|pilates|treino|betterme|befit/i,"🏋️"],[/unha|manicure|gloss|sobrancelha|depila/i,"💅"],[/sal[aã]o|cabelo|cabeleir/i,"💇"],
+  [/farm[aá]cia|rem[eé]dio|cvs|walgreens/i,"💊"],[/m[eé]dico|dentista|consulta|hospital/i,"🩺"],[/roupa|tommy|camis|zara|h&m|macy/i,"👕"],[/sapato|t[eê]nis|dsw|nike/i,"👟"],
+  [/bolsa|pandora|joia|j[oó]ia|anel|brinco/i,"💍"],[/amazon/i,"📦"],[/presente|gift/i,"🎁"],[/aluguel|rent|apf|management/i,"🏠"],[/luz|energia|pse&?g|eletric/i,"💡"],
+  [/internet|wifi|verizon|t-?mobile|celular|telefone/i,"📶"],[/netflix|disney|peacock|hallmark|hbo|youtube|faith/i,"📺"],[/spotify|m[uú]sica/i,"🎵"],
+  [/cinema|filme/i,"🎬"],[/airbnb|hotel/i,"🏨"],[/passagem|voo|viagem|airline/i,"✈️"],[/pet|cachorro|gato|ra[cç][aã]o/i,"🐶"],
+  [/home depot|lowe'?s|ferramenta|milwaukee|material|obra|piso/i,"🔨"],[/usps|correio|fedex|ups\b/i,"📮"],[/zelle|transfer|nu\b/i,"💸"],
+  [/saque|cash|atm/i,"💵"],[/multa|juros|taxa|fee/i,"⚠️"],[/igreja|d[ií]zimo|oferta/i,"⛪"],[/apple|icloud|chatgpt|microsoft|midjourney|assinatura|prime/i,"🔁"],
+  [/sal[aá]rio|cliente|pagamento|dep[oó]sito|recebi|renda/i,"💰"]
+];
+function emojiAuto(desc,cat,tipo){
+  const d=desc||"";
+  if(tipo==="fatura") return "💳";
+  if(tipo==="entrada") return "💰";
+  for(const [re,e] of EMO_RE) if(re.test(d)) return e;
+  return ICONES[cat]&&ICONES[cat]!=="•"?ICONES[cat]:"💸";
+}
+const emojiDe=i=>i.emoji||emojiAuto(i.desc,i.cat,i.t);
+const icE=e=>`<div class="ic">${esc(e)}</div>`;
+function montarGrade(grid,atual,onPick){
+  grid.innerHTML=`<button type="button" class="auto" data-e="">✨ Automático (escolhe pelo nome)</button>`+EMOJIS.map(e=>`<button type="button" data-e="${e}" class="${e===atual?"on":""}">${e}</button>`).join("");
+  grid.onclick=ev=>{const b=ev.target.closest("button");if(!b)return;onPick(b.dataset.e);grid.classList.add("hide")};
+}
 function rowMov(g){
-  if(g.t==="entrada") return `<button type="button" class="row" data-edit="${esc(g.id)}">${ic("Renda")}<div class="main"><div class="t">${esc(g.desc||"Entrada")}</div><div class="s">${esc(g.pag||"")} · ${fmtData(parse(g.data))}</div></div><div class="amt" style="color:var(--accent)">+${money(+g.valor)}</div></button>`;
-  if(g.t==="fatura") return `<button type="button" class="row dim" data-edit="${esc(g.id)}">${ic("Pagamento de fatura")}<div class="main"><div class="t">${esc(g.desc)}</div><div class="s">Pagamento de fatura (não conta como gasto) · ${fmtData(parse(g.data))}</div></div><div class="amt">${money(+g.valor)}</div></button>`;
-  return `<button type="button" class="row" data-edit="${esc(g.id)}">${ic(g.cat)}<div class="main"><div class="t">${esc(g.desc||g.cat)}</div><div class="s">${esc(g.cat||"")} · ${esc(g.pag||"")} · ${fmtData(parse(g.data))}</div></div><div class="amt">${money(+g.valor)}</div></button>`;
+  if(g.t==="entrada") return `<button type="button" class="row" data-edit="${esc(g.id)}">${icE(emojiDe(g))}<div class="main"><div class="t">${esc(g.desc||"Entrada")}</div><div class="s">${esc(g.pag||"")} · ${fmtData(parse(g.data))}</div></div><div class="amt" style="color:var(--accent)">+${money(+g.valor)}</div></button>`;
+  if(g.t==="fatura") return `<button type="button" class="row dim" data-edit="${esc(g.id)}">${icE(emojiDe(g))}<div class="main"><div class="t">${esc(g.desc)}</div><div class="s">Pagamento de fatura (não conta como gasto) · ${fmtData(parse(g.data))}</div></div><div class="amt">${money(+g.valor)}</div></button>`;
+  return `<button type="button" class="row" data-edit="${esc(g.id)}">${icE(emojiDe(g))}<div class="main"><div class="t">${esc(g.desc||g.cat)}</div><div class="s">${esc(g.cat||"")} · ${esc(g.pag||"")} · ${fmtData(parse(g.data))}</div></div><div class="amt">${money(+g.valor)}</div></button>`;
 }
 
 async function importarExtratos(){
@@ -171,7 +200,8 @@ function abrir(t,it,pre){
     html=`<h3>${it?"Editar lançamento":"Novo lançamento"}</h3>
     <label>Tipo</label>${seg("tipo",[["gasto","Gasto"],["entrada","Entrada"],["fatura","Pag. de fatura"]],tipo)}
     <label>Valor ($)</label><input name="valor" type="number" inputmode="decimal" step="0.01" required value="${esc(v.valor??"")}">
-    <label>Descrição</label><input name="desc" placeholder="Ex.: almoço, mercado, salário" value="${esc(v.desc||"")}">
+    <label>Descrição</label><div class="descrow"><button type="button" class="emobtn" id="f-emoji">${esc(v.emoji||emojiAuto(v.desc,v.cat,tipo))}</button><input name="desc" id="f-desc" placeholder="Ex.: almoço, mercado, salário" value="${esc(v.desc||"")}"></div>
+    <div class="emogrid hide" id="f-grid" style="margin-top:8px"></div><input type="hidden" name="emoji" value="${esc(v.emoji||"")}">
     <label>Categoria</label><select name="cat" id="f-cat">${opts_(tipo==="entrada"?CATS_ENTRADA:CATS,v.cat||(tipo==="entrada"?"Renda":"Mercado"))}</select>
     <label>Conta / forma de pagamento</label><select name="pag">${opts_(CONTAS,v.pag||"Dinheiro")}</select>
     <label>Data</label><input name="data" type="date" required value="${esc(v.data||iso(new Date()))}">`;
@@ -200,6 +230,13 @@ function abrir(t,it,pre){
     form.elements[s.dataset.seg].value=b.dataset.val;
     if(tipoForm==="gasto"&&s.dataset.seg==="tipo"){const c=$("#f-cat");const lst=b.dataset.val==="entrada"?CATS_ENTRADA:b.dataset.val==="fatura"?["Pagamento de fatura"]:CATS;c.innerHTML=opts_(lst,lst[0]);}
   });
+  if(tipoForm==="gasto"){
+    const fe=$("#f-emoji"), fg=$("#f-grid");
+    const atual=()=>form.elements.emoji.value||emojiAuto(form.elements.desc.value,form.elements.cat.value,form.elements.tipo.value);
+    fe.onclick=()=>{montarGrade(fg,form.elements.emoji.value,e=>{form.elements.emoji.value=e;fe.textContent=atual()});fg.classList.toggle("hide")};
+    $("#f-desc").addEventListener("input",()=>{fe.textContent=atual()});
+    form.elements.cat.addEventListener("change",()=>{fe.textContent=atual()});
+  }
   $("#b-cancel").onclick=fechar;
   if(it) $("#b-del").onclick=apagar;
   bg.style.display="block"; requestAnimationFrame(()=>sheet.classList.add("open"));
@@ -211,7 +248,7 @@ form.onsubmit=async e=>{
   if(!store.ready()){$("#f-err").textContent="Ainda não conectou. Espere um pouco e tente de novo.";return}
   const f=Object.fromEntries(new FormData(form).entries());
   let doc;
-  if(tipoForm==="gasto") doc={t:f.tipo,valor:+f.valor,desc:f.desc.trim(),cat:f.cat,pag:f.pag,data:f.data,criado:editando?.criado||Date.now(),origem:editando?.origem||"app"};
+  if(tipoForm==="gasto") doc={t:f.tipo,valor:+f.valor,desc:f.desc.trim(),cat:f.cat,pag:f.pag,data:f.data,criado:editando?.criado||Date.now(),origem:editando?.origem||"app",emoji:f.emoji||""};
   else if(tipoForm==="assin") doc={t:"assin",nome:f.nome.trim(),valor:+f.valor,freq:f.freq,status:f.status,onde:f.onde.trim(),prox:f.prox||"",obs:f.obs.trim()};
   else doc={t:"bem",tipo:f.tipo,nome:f.nome.trim(),valor:+f.valor,onde:f.onde.trim(),meta:f.meta?+f.meta:0,atualizado:iso(new Date())};
   if(!isFinite(doc.valor)){$("#f-err").textContent="Coloque um valor válido.";return}
@@ -279,7 +316,8 @@ async function salvarRapido(doc){
 }
 
 // ---------- LANÇAR RÁPIDO ----------
-const L={tipo:"gasto",cents:0,catManual:false};
+const L={tipo:"gasto",cents:0,catManual:false,emoji:""};
+function lEmoji(){ if(!$("#l-emoji")) return; let cat=$("#l-cat").value; if(cat==="Categoria…") cat=adivinharCat($("#l-desc").value,L.tipo)||""; $("#l-emoji").textContent=L.emoji||emojiAuto($("#l-desc").value,cat,L.tipo); }
 const elL=$("#lancar");
 function fillSelect(sel,lista,val){sel.innerHTML=lista.map(o=>`<option ${o===val?"selected":""}>${esc(o)}</option>`).join("")}
 function ultimaConta(){const u=[...items].filter(i=>i.t==="gasto"&&i.origem==="app").sort(ordemData)[0];return (u&&u.pag)||"Dinheiro"}
@@ -291,11 +329,11 @@ function lRender(){
 }
 function abrirLancar(){
   if(!elL) return;
-  L.tipo="gasto"; L.cents=0; L.catManual=false;
+  L.tipo="gasto"; L.cents=0; L.catManual=false; L.emoji=""; if($("#l-grid")) $("#l-grid").classList.add("hide");
   $("#l-desc").value="";
   fillSelect($("#l-cat"),["Categoria…",...CATS],"Categoria…");
   fillSelect($("#l-conta"),CONTAS,ultimaConta());
-  lRender(); elL.classList.add("open");
+  lRender(); lEmoji(); elL.classList.add("open");
 }
 function fecharLancar(){ elL.classList.remove("open"); if(location.hash==="#lancar") history.replaceState(null,"",location.pathname+location.search); }
 if(elL){
@@ -304,7 +342,7 @@ if(elL){
   elL.querySelectorAll(".tipo button").forEach(b=>b.onclick=()=>{
     L.tipo=b.dataset.tipo;
     fillSelect($("#l-cat"),L.tipo==="entrada"?CATS_ENTRADA:["Categoria…",...CATS],L.tipo==="entrada"?"Renda":"Categoria…");
-    L.catManual=false; lRender();
+    L.catManual=false; lRender(); lEmoji();
   });
   $("#l-teclado").onclick=e=>{
     const b=e.target.closest("button"); if(!b) return;
@@ -313,14 +351,15 @@ if(elL){
     if(navigator.vibrate) try{navigator.vibrate(8)}catch(_){}
     lRender();
   };
-  $("#l-desc").oninput=()=>{ if(L.catManual) return; const c=adivinharCat($("#l-desc").value,L.tipo); if(c) $("#l-cat").value=c; };
+  $("#l-desc").oninput=()=>{ if(!L.catManual){ const c=adivinharCat($("#l-desc").value,L.tipo); if(c) $("#l-cat").value=c; } lEmoji(); };
+  $("#l-emoji").onclick=()=>{ const g=$("#l-grid"); montarGrade(g,L.emoji,e=>{L.emoji=e;lEmoji()}); g.classList.toggle("hide"); };
   $("#l-desc").onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); e.target.blur(); } };
-  $("#l-cat").onchange=()=>{L.catManual=true};
-  $("#l-mais").onclick=()=>{ const v=L.cents?L.cents/100:""; const desc=$("#l-desc").value; fecharLancar(); abrir("gasto",null,{t:L.tipo,valor:v,desc}); };
+  $("#l-cat").onchange=()=>{L.catManual=true;lEmoji()};
+  $("#l-mais").onclick=()=>{ const v=L.cents?L.cents/100:""; const desc=$("#l-desc").value; fecharLancar(); abrir("gasto",null,{t:L.tipo,valor:v,desc,emoji:L.emoji}); };
   $("#l-ok").onclick=async()=>{
     if(!store.ready()){toast("Ainda conectando… tente de novo em instantes.");return}
     let cat=$("#l-cat").value; if(cat==="Categoria…") cat=adivinharCat($("#l-desc").value,L.tipo)||(L.tipo==="entrada"?"Renda":"Outros");
-    const doc={t:L.tipo,valor:L.cents/100,desc:$("#l-desc").value.trim(),cat,pag:$("#l-conta").value,data:iso(new Date()),criado:Date.now(),origem:"app"};
+    const doc={t:L.tipo,valor:L.cents/100,desc:$("#l-desc").value.trim(),cat,pag:$("#l-conta").value,data:iso(new Date()),criado:Date.now(),origem:"app",emoji:L.emoji||""};
     $("#l-ok").disabled=true;
     try{ const id=await salvarRapido(doc); fecharLancar(); toast((L.tipo==="entrada"?"Entrada de ":"Gasto de ")+money(doc.valor)+" lançado","Desfazer",()=>store.remove(id)); }
     catch(_){ toast("Não consegui salvar. Tente de novo."); lRender(); }
