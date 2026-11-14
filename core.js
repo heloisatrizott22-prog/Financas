@@ -60,7 +60,7 @@ function render(){
     const dias=Math.round((d-h)/864e5);
     const quando=dias===0?"hoje":dias===1?"amanhã":"em "+dias+" dias";
     const aviso=a.status==="cancelar"?'<span class="pill p-cancelar">cancele antes</span> ':"";
-    return `<button type="button" class="row" data-edit="${esc(a.id)}"><div class="main"><div class="t">${esc(a.nome)}</div><div class="s">${aviso}${fmtData(d)} · ${quando}</div></div><div class="amt">${money(+a.valor)}</div></button>`;
+    return `<button type="button" class="row" data-edit="${esc(a.id)}">${icE(a.emoji||emojiAuto(a.nome,"Assinaturas","gasto"))}<div class="main"><div class="t">${esc(a.nome)}</div><div class="s">${aviso}${fmtData(d)} · ${quando}</div></div><div class="amt">${money(+a.valor)}</div></button>`;
   }).join(""):'<div class="empty">Nenhuma cobrança nos próximos 30 dias.</div>';
 
   const ult=[...gastos,...entradas].sort(ordemData).slice(0,5);
@@ -100,7 +100,7 @@ function render(){
   $("#a-list").innerHTML=lista.length?lista.map(a=>{
     const d=a.status!=="cancelada"?proxima(a):null;
     const lbl={ativa:"Ativa",cancelar:"Vou cancelar",cancelada:"Cancelada"}[a.status]||"Ativa";
-    return `<button type="button" class="row ${a.status==="cancelada"?"dim":""}" data-edit="${esc(a.id)}"><div class="main"><div class="t">${esc(a.nome)}</div><div class="s"><span class="pill p-${esc(a.status||"ativa")}">${lbl}</span> ${esc(a.onde||"")}${d?" · próxima "+fmtData(d):""}</div></div><div class="amt">${money(+a.valor)}<small>${a.freq==="Anual"?"por ano":"por mês"}</small></div></button>`;
+    return `<button type="button" class="row ${a.status==="cancelada"?"dim":""}" data-edit="${esc(a.id)}">${icE(a.emoji||emojiAuto(a.nome,"Assinaturas","gasto"))}<div class="main"><div class="t">${esc(a.nome)}</div><div class="s"><span class="pill p-${esc(a.status||"ativa")}">${lbl}</span> ${esc(a.onde||"")}${d?" · próxima "+fmtData(d):""}</div></div><div class="amt">${money(+a.valor)}<small>${a.freq==="Anual"?"por ano":"por mês"}</small></div></button>`;
   }).join(""):'<div class="empty">Nenhuma assinatura aqui.</div>';
 
   // ---------- PATRIMÔNIO ----------
@@ -108,7 +108,7 @@ function render(){
   const rowBem=b=>{
     const meta=+b.meta>0?`<div class="bar"><i style="width:${Math.min(100,(+b.valor||0)/(+b.meta)*100)}%"></i></div><div class="s">Meta ${money(+b.meta)} · ${Math.round((+b.valor||0)/(+b.meta)*100)}%</div>`:"";
     const at=b.atualizado?"atualizado em "+fmtData(parse(b.atualizado)):"";
-    return `<button type="button" class="row" data-edit="${esc(b.id)}"><div class="main"><div class="t">${esc(b.nome)}</div><div class="s">${esc(b.onde||"")}${b.onde&&at?" · ":""}${at}</div>${meta}</div><div class="amt">${money(+b.valor)}</div></button>`;
+    return `<button type="button" class="row" data-edit="${esc(b.id)}">${icE(b.emoji||(b.tipo==="Investimento"?"📈":"🐷"))}<div class="main"><div class="t">${esc(b.nome)}</div><div class="s">${esc(b.onde||"")}${b.onde&&at?" · ":""}${at}</div>${meta}</div><div class="amt">${money(+b.valor)}</div></button>`;
   };
   const ec=bens.filter(b=>b.tipo!=="Investimento"), iv=bens.filter(b=>b.tipo==="Investimento");
   $("#p-econ").innerHTML=ec.length?ec.map(rowBem).join(""):'<div class="empty">Toque em "+ Adicionar guardado" para colocar poupança, caixinha ou dinheiro guardado.</div>';
@@ -118,14 +118,16 @@ function render(){
 }
 const ICONES={"Mercado":"🛒","Delivery e restaurantes":"🍔","Combustível e pedágio":"⛽","Seguro do carro":"🚗","Carro (outros)":"🔧","Casa":"🏠","Contas da casa":"💡","Compras":"🛍️","Beleza":"💅","Academia":"🏋️","Saúde":"🩺","Transporte (Uber)":"🚕","Lazer":"🎉","Viagem":"✈️","Assinaturas":"🔁","Trabalho e ferramentas":"🧰","Transferências (Zelle e outros)":"↔️","Saque em dinheiro":"💵","Taxas e juros":"⚠️","Outros":"•","Renda":"💰","Pagamento de fatura":"💳"};
 const ic=c=>`<div class="ic">${ICONES[c]||"•"}</div>`;
-const EMOJIS=["☕","🍔","🍕","🥪","🍣","🍽️","🥐","🍦","🍺","🛵","🛒","🥦","🍎","⛽","🚕","🚗","🛣️","🛡️","🏋️","💅","💇","💊","🩺","👕","👟","👜","💍","📦","🎁","🏠","💡","📶","📱","💻","📺","🎵","🎬","🎮","✈️","🏨","🐶","👶","📚","🔨","🧰","📮","💸","💵","💳","⚠️","💰","🎉","⛪","❤️","🧾","🔁"];
+const EMOJIS=["☕","🍔","🍕","🥪","🍣","🍽️","🥐","🍦","🍺","🛵","🛒","🥦","🍎","⛽","🚕","🚗","🛣️","🛡️","🏋️","💅","💇","💊","🩺","👕","👟","👜","💍","📦","🎁","🏠","💡","📶","📱","💻","📺","🎵","🎬","🎮","✈️","🏨","🐶","👶","📚","🔨","🧰","📮","💸","💵","💳","⚠️","💰","🎉","⛪","❤️","🧾","🔁","🤖","☁️","🖼️","📊","🌸","🎨","📈","🐷","🏦","🔑","🧘"];
 const EMO_RE=[
+  [/chatgpt|claude|openai|gemini/i,"🤖"],[/icloud|dropbox|google one/i,"☁️"],[/google photos|fotos/i,"🖼️"],[/rocket money/i,"📊"],
+  [/natural cycles|\bflo\b/i,"🌸"],[/microsoft|office|word/i,"💻"],[/midjourney|canva|adobe/i,"🎨"],[/dashpass/i,"🛵"],[/kinvo|investimento/i,"📈"],[/keyconnect|car key/i,"🔑"],[/stresswatch/i,"🧘"],
   [/caf[eé]|starbucks|dunkin|coffee/i,"☕"],[/pizza/i,"🍕"],[/burger|hamb[uú]rg|mcdonald|wendy|five guys/i,"🍔"],[/subway|sandu[ií]|sandwich/i,"🥪"],
   [/sushi|japon/i,"🍣"],[/a[cç]a[ií]|sorvete|ice cream/i,"🍦"],[/padaria|bakery|p[aã]o/i,"🥐"],[/cerveja|bar\b|drink|vinho/i,"🍺"],
   [/doordash|uber ?eats|ifood|delivery|grubhub/i,"🛵"],[/almo[cç]o|jantar|restaurante|comida|lanche|snack|cafe\b|seabra/i,"🍽️"],
   [/mercado|walmart|fine ?fare|save ?smart|costco|aldi|shoprite|feira|grocery/i,"🛒"],[/gasolina|combust|posto|citgo|sunoco|wawa|shell|exxon|jersey gas|phillips|bj'?s fuel/i,"⛽"],
   [/uber|lyft|t[aá]xi/i,"🚕"],[/ezpass|ped[aá]gio|toll/i,"🛣️"],[/geico|seguro/i,"🛡️"],[/carro|mec[aâ]nic|oficina/i,"🚗"],
-  [/academia|personal|la fitness|gym|pilates|treino|betterme|befit/i,"🏋️"],[/unha|manicure|gloss|sobrancelha|depila/i,"💅"],[/sal[aã]o|cabelo|cabeleir/i,"💇"],
+  [/academia|personal|fitness|gym|pilates|treino|betterme|befit|lyfta/i,"🏋️"],[/unha|manicure|gloss|sobrancelha|depila/i,"💅"],[/sal[aã]o|cabelo|cabeleir/i,"💇"],
   [/farm[aá]cia|rem[eé]dio|cvs|walgreens/i,"💊"],[/m[eé]dico|dentista|consulta|hospital/i,"🩺"],[/roupa|tommy|camis|zara|h&m|macy/i,"👕"],[/sapato|t[eê]nis|dsw|nike/i,"👟"],
   [/bolsa|pandora|joia|j[oó]ia|anel|brinco/i,"💍"],[/amazon/i,"📦"],[/presente|gift/i,"🎁"],[/aluguel|rent|apf|management/i,"🏠"],[/luz|energia|pse&?g|eletric/i,"💡"],
   [/internet|wifi|verizon|t-?mobile|celular|telefone/i,"📶"],[/netflix|disney|peacock|hallmark|hbo|youtube|faith/i,"📺"],[/spotify|m[uú]sica/i,"🎵"],
@@ -208,7 +210,8 @@ function abrir(t,it,pre){
   } else if(t==="assin"){
     html=`<h3>${it?"Assinatura":"Nova assinatura"}</h3>
     <label>Status</label>${seg("status",[["ativa","Ativa"],["cancelar","Vou cancelar"],["cancelada","Cancelada"]],v.status||"ativa")}
-    <label>Nome</label><input name="nome" required value="${esc(v.nome||"")}">
+    <label>Nome</label><div class="descrow"><button type="button" class="emobtn" id="f-emoji">${esc(v.emoji||emojiAuto(v.nome,"Assinaturas","gasto"))}</button><input name="nome" id="f-desc" required value="${esc(v.nome||"")}"></div>
+    <div class="emogrid hide" id="f-grid" style="margin-top:8px"></div><input type="hidden" name="emoji" value="${esc(v.emoji||"")}">
     <div class="two"><div><label>Valor ($)</label><input name="valor" type="number" inputmode="decimal" step="0.01" min="0" required value="${esc(v.valor??"")}"></div>
     <div><label>Frequência</label><select name="freq">${opts_(["Mensal","Anual"],v.freq||"Mensal")}</select></div></div>
     <label>Onde é cobrada</label><input name="onde" placeholder="Apple, cartão, débito…" value="${esc(v.onde||"")}">
@@ -230,6 +233,12 @@ function abrir(t,it,pre){
     form.elements[s.dataset.seg].value=b.dataset.val;
     if(tipoForm==="gasto"&&s.dataset.seg==="tipo"){const c=$("#f-cat");const lst=b.dataset.val==="entrada"?CATS_ENTRADA:b.dataset.val==="fatura"?["Pagamento de fatura"]:CATS;c.innerHTML=opts_(lst,lst[0]);}
   });
+  if(tipoForm==="assin"){
+    const fe=$("#f-emoji"), fg=$("#f-grid");
+    const atual=()=>form.elements.emoji.value||emojiAuto(form.elements.nome.value,"Assinaturas","gasto");
+    fe.onclick=()=>{montarGrade(fg,form.elements.emoji.value,e=>{form.elements.emoji.value=e;fe.textContent=atual()});fg.classList.toggle("hide")};
+    $("#f-desc").addEventListener("input",()=>{fe.textContent=atual()});
+  }
   if(tipoForm==="gasto"){
     const fe=$("#f-emoji"), fg=$("#f-grid");
     const atual=()=>form.elements.emoji.value||emojiAuto(form.elements.desc.value,form.elements.cat.value,form.elements.tipo.value);
@@ -249,7 +258,7 @@ form.onsubmit=async e=>{
   const f=Object.fromEntries(new FormData(form).entries());
   let doc;
   if(tipoForm==="gasto") doc={t:f.tipo,valor:+f.valor,desc:f.desc.trim(),cat:f.cat,pag:f.pag,data:f.data,criado:editando?.criado||Date.now(),origem:editando?.origem||"app",emoji:f.emoji||""};
-  else if(tipoForm==="assin") doc={t:"assin",nome:f.nome.trim(),valor:+f.valor,freq:f.freq,status:f.status,onde:f.onde.trim(),prox:f.prox||"",obs:f.obs.trim()};
+  else if(tipoForm==="assin") doc={t:"assin",nome:f.nome.trim(),valor:+f.valor,freq:f.freq,status:f.status,onde:f.onde.trim(),prox:f.prox||"",obs:f.obs.trim(),emoji:f.emoji||""};
   else doc={t:"bem",tipo:f.tipo,nome:f.nome.trim(),valor:+f.valor,onde:f.onde.trim(),meta:f.meta?+f.meta:0,atualizado:iso(new Date())};
   if(!isFinite(doc.valor)){$("#f-err").textContent="Coloque um valor válido.";return}
   salvando=true;
