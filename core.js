@@ -152,7 +152,24 @@ function montarGrade(grid,atual,onPick){
 function rowMov(g){
   if(g.t==="entrada") return `<button type="button" class="row" data-edit="${esc(g.id)}">${icE(emojiDe(g))}<div class="main"><div class="t">${esc(g.desc||"Entrada")}</div><div class="s">${esc(g.pag||"")} · ${fmtData(parse(g.data))}</div></div><div class="amt" style="color:var(--accent)">+${money(+g.valor)}</div></button>`;
   if(g.t==="fatura") return `<button type="button" class="row dim" data-edit="${esc(g.id)}">${icE(emojiDe(g))}<div class="main"><div class="t">${esc(g.desc)}</div><div class="s">Pagamento de fatura (não conta como gasto) · ${fmtData(parse(g.data))}</div></div><div class="amt">${money(+g.valor)}</div></button>`;
-  return `<button type="button" class="row" data-edit="${esc(g.id)}">${icE(emojiDe(g))}<div class="main"><div class="t">${esc(g.desc||g.cat)}</div><div class="s">${esc(g.cat||"")} · ${esc(g.pag||"")} · ${fmtData(parse(g.data))}</div></div><div class="amt">${money(+g.valor)}</div></button>`;
+  return `<button type="button" class="row" data-edit="${esc(g.id)}">${icE(emojiDe(g))}<div class="main"><div class="t">${esc(g.desc||g.cat)}</div><div class="s">${esc(g.cat||"")} · ${esc(g.pag||"")} · ${fmtData(parse(g.data))}${g.conferido?' · <span style="color:var(--accent)">✓ no extrato</span>':""}</div></div><div class="amt">${money(+g.valor)}</div></button>`;
+}
+
+// Importa lançamentos do extrato sem duplicar o que já foi lançado à mão
+async function importarComConferencia(pares,prog){
+  const DIAS=5*864e5;
+  const manuais=items.filter(i=>(i.t==="gasto"||i.t==="entrada")&&i.origem!=="extrato"&&!i.conferido);
+  const usados=new Set(), novos=[], conferidos=[];
+  for(const [id,o] of pares){
+    if(items.some(i=>i.id===id||i.extratoId===id)) continue;
+    const dO=parse(o.data);
+    const m=(o.t==="gasto"||o.t==="entrada")&&dO?manuais.filter(i=>!usados.has(i.id)&&i.t===o.t&&i.pag===o.pag&&Math.abs((+i.valor)-(+o.valor))<0.01&&parse(i.data)&&Math.abs(parse(i.data)-dO)<=DIAS)
+      .sort((a,b)=>Math.abs(parse(a.data)-dO)-Math.abs(parse(b.data)-dO))[0]:null;
+    if(m){usados.add(m.id);conferidos.push([m,id]);} else novos.push([id,o]);
+  }
+  if(novos.length) await store.bulk(novos,prog);
+  for(const [m,xid] of conferidos){const {id,...r}=m; await store.save(id,Object.assign({},r,{conferido:true,extratoId:xid}));}
+  return {novos:novos.length,conferidos:conferidos.length};
 }
 
 async function importarExtratos(){
@@ -160,7 +177,7 @@ async function importarExtratos(){
   try{
     const r=await fetch(opts.extratoUrl); const lista=await r.json();
     const pares=lista.map((o,i)=>["x"+String(i+1).padStart(3,"0"),o]);
-    await store.bulk(pares,(feito)=>{const p=$("#imp-prog"); if(p) p.textContent=feito+" de "+pares.length});
+    await importarComConferencia(pares,(feito)=>{const p=$("#imp-prog"); if(p) p.textContent=feito+" de "+pares.length});
     mes=ultimoMesComDados();
   }catch(e){ const p=$("#imp-prog"); if(p) p.textContent="Não consegui importar agora. Tente de novo."; }
   importando=false; render();
@@ -526,5 +543,5 @@ setTimeout(rota,0);
 
 render();
 store.subscribe(list=>{items=list;render()});
-return { render, abrir, abrirLancar, abrirChat, perguntar, getItems:()=>items };
+return { render, abrir, abrirLancar, abrirChat, perguntar, importarComConferencia, getItems:()=>items };
 }
