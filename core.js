@@ -2,7 +2,7 @@
 // store = { subscribe(onItems, onError), save(id|null, obj), remove(id), bulk(list of [id,obj], onProgress) }
 
 export function iniciarApp(store, opts = {}) {
-const CATS=["Mercado","Delivery e restaurantes","Combustível e pedágio","Seguro do carro","Carro (outros)","Casa","Contas da casa","Compras","Beleza","Academia","Saúde","Transporte (Uber)","Lazer","Viagem","Assinaturas","Trabalho e ferramentas","Transferências (Zelle e outros)","Saque em dinheiro","Taxas e juros","Outros"];
+const CATS=["Mercado","Delivery e restaurantes","Combustível e pedágio","Seguro do carro","Carro (outros)","Casa","Contas da casa","Compras","Beleza","Academia","Saúde","Transporte (Uber)","Lazer","Viagem","Dízimo e doações","Assinaturas","Trabalho e ferramentas","Transferências (Zelle e outros)","Saque em dinheiro","Taxas e juros","Outros"];
 const CATS_ENTRADA=["Renda","Trabalho","Reembolso","Presente","Outros"];
 const CONTAS=["Dinheiro","Santander conta corrente","Santander cartão 3190","Cartão Consumers","Cartão Amazon","Cartão Macy's","Zelle"];
 const MESES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
@@ -116,7 +116,7 @@ function render(){
 
   if(opts.afterRender) opts.afterRender(items);
 }
-const ICONES={"Mercado":"🛒","Delivery e restaurantes":"🍔","Combustível e pedágio":"⛽","Seguro do carro":"🚗","Carro (outros)":"🔧","Casa":"🏠","Contas da casa":"💡","Compras":"🛍️","Beleza":"💅","Academia":"🏋️","Saúde":"🩺","Transporte (Uber)":"🚕","Lazer":"🎉","Viagem":"✈️","Assinaturas":"🔁","Trabalho e ferramentas":"🧰","Transferências (Zelle e outros)":"↔️","Saque em dinheiro":"💵","Taxas e juros":"⚠️","Outros":"•","Renda":"💰","Pagamento de fatura":"💳"};
+const ICONES={"Mercado":"🛒","Delivery e restaurantes":"🍔","Combustível e pedágio":"⛽","Seguro do carro":"🚗","Carro (outros)":"🔧","Casa":"🏠","Contas da casa":"💡","Compras":"🛍️","Beleza":"💅","Academia":"🏋️","Saúde":"🩺","Transporte (Uber)":"🚕","Lazer":"🎉","Viagem":"✈️","Dízimo e doações":"⛪","Assinaturas":"🔁","Trabalho e ferramentas":"🧰","Transferências (Zelle e outros)":"↔️","Saque em dinheiro":"💵","Taxas e juros":"⚠️","Outros":"•","Renda":"💰","Pagamento de fatura":"💳"};
 const ic=c=>`<div class="ic">${ICONES[c]||"•"}</div>`;
 const EMOJIS=["☕","🍔","🍕","🥪","🍣","🍽️","🥐","🍦","🍺","🛵","🛒","🥦","🍎","⛽","🚕","🚗","🛣️","🛡️","🏋️","💅","💇","💊","🩺","👕","👟","👜","💍","📦","🎁","🏠","💡","📶","📱","💻","📺","🎵","🎬","🎮","✈️","🏨","🐶","👶","📚","🔨","🧰","📮","💸","💵","💳","⚠️","💰","🎉","⛪","❤️","🧾","🔁","🤖","☁️","🖼️","📊","🌸","🎨","📈","🐷","🏦","🔑","🧘"];
 const EMO_RE=[
@@ -133,7 +133,7 @@ const EMO_RE=[
   [/internet|wifi|verizon|t-?mobile|celular|telefone/i,"📶"],[/netflix|disney|peacock|hallmark|hbo|youtube|faith/i,"📺"],[/spotify|m[uú]sica/i,"🎵"],
   [/cinema|filme/i,"🎬"],[/airbnb|hotel/i,"🏨"],[/passagem|voo|viagem|airline/i,"✈️"],[/pet|cachorro|gato|ra[cç][aã]o/i,"🐶"],
   [/home depot|lowe'?s|ferramenta|milwaukee|material|obra|piso/i,"🔨"],[/usps|correio|fedex|ups\b/i,"📮"],[/zelle|transfer|nu\b/i,"💸"],
-  [/saque|cash|atm/i,"💵"],[/multa|juros|taxa|fee/i,"⚠️"],[/igreja|d[ií]zimo|oferta/i,"⛪"],[/apple|icloud|chatgpt|microsoft|midjourney|assinatura|prime/i,"🔁"],
+  [/saque|cash|atm/i,"💵"],[/multa|juros|taxa|fee/i,"⚠️"],[/igreja|d[ií]zimo|oferta|missa|par[oó]quia|church|tithe|doa[cç][aã]o/i,"⛪"],[/apple|icloud|chatgpt|microsoft|midjourney|assinatura|prime/i,"🔁"],
   [/sal[aá]rio|cliente|pagamento|dep[oó]sito|recebi|renda/i,"💰"]
 ];
 function emojiAuto(desc,cat,tipo){
@@ -287,7 +287,8 @@ const PALAVRAS=[
   [/amazon|roupa|sapato|loja|shopping|tommy|pandora|presente/i,"Compras"],
   [/cinema|show|festa|bar|balada|passeio/i,"Lazer"],
   [/airbnb|hotel|passagem|voo|viagem/i,"Viagem"],
-  [/zelle|transfer/i,"Transferências (Zelle e outros)"]
+  [/zelle|transfer/i,"Transferências (Zelle e outros)"],
+  [/d[ií]zimo|missa|igreja|oferta|doa[cç][aã]o|par[oó]quia|church|tithe/i,"Dízimo e doações"]
 ];
 function adivinharCat(desc,tipo){
   if(tipo==="entrada") return "Renda";
@@ -493,7 +494,7 @@ async function responder(txt){
   if(/quanto|gastei|gasto|gastos/.test(t)){
     // categoria ou palavra específica
     const limpo=t.replace(new RegExp("\\b("+MESES_RE.join("|")+")\\b","g")," ").replace(/\b(este|esse|neste|nesse|deste|desse|ultimo)\s+mes\b|\bmes passado\b|\bmes\b/g," ").replace(/[?!.]/g," ").replace(/\s+/g," ").trim();
-    const mm=limpo.match(/\b(?:gastei|gasto|gastos|paguei)\s+(?:com|em|no|na|de)\s+(.+)$/)||limpo.match(/\b(?:com|no|na)\s+(.+)$/);
+    const mm=limpo.match(/\b(?:gastei|gasto|gastos|paguei|dei|doei)\s+(?:com|em|no|na|de)\s+(.+)$/)||limpo.match(/\b(?:com|no|na)\s+(.+)$/);
     const resto=mm?mm[1].replace(/\s+(em|de|no|na)$/,"").trim():"";
     let alvo=null;
     if(resto&&resto.length>2&&!/^(gastei|gasto|gastos|quanto)$/.test(resto)){
