@@ -4,7 +4,7 @@
 export function iniciarApp(store, opts = {}) {
 const CATS=["Mercado","Delivery e restaurantes","Combustível e pedágio","Seguro do carro","Carro (outros)","Casa","Contas da casa","Compras","Beleza","Academia","Saúde","Transporte (Uber)","Lazer","Viagem","Dízimo e doações","Assinaturas","Trabalho e ferramentas","Transferências (Zelle e outros)","Saque em dinheiro","Taxas e juros","Outros"];
 const CATS_ENTRADA=["Renda","Trabalho","Reembolso","Presente","Outros"];
-const CONTAS=["Dinheiro","Santander conta corrente","Santander cartão 3190","Cartão Consumers","Cartão Amazon","Cartão Macy's","Zelle"];
+const CONTAS=["Dinheiro","Cheque","Santander conta corrente","Santander cartão 3190","Cartão Consumers","Cartão Amazon","Cartão Macy's","Zelle"];
 const MESES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
 const $=s=>document.querySelector(s);
 const money=n=>(n<0?"-":"")+"$"+Math.abs(n||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -139,18 +139,18 @@ const EMO_RE=[
 function emojiAuto(desc,cat,tipo){
   const d=desc||"";
   if(tipo==="fatura") return "💳";
-  if(tipo==="entrada") return "💰";
+  if(tipo==="entrada") return /cheque|check/i.test(d)?"🧾":"💰";
   for(const [re,e] of EMO_RE) if(re.test(d)) return e;
   return ICONES[cat]&&ICONES[cat]!=="•"?ICONES[cat]:"💸";
 }
-const emojiDe=i=>i.emoji||emojiAuto(i.desc,i.cat,i.t);
+const emojiDe=i=>i.emoji||(i.t==="entrada"&&i.pag==="Cheque"?"🧾":emojiAuto(i.desc,i.cat,i.t));
 const icE=e=>`<div class="ic">${esc(e)}</div>`;
 function montarGrade(grid,atual,onPick){
   grid.innerHTML=`<button type="button" class="auto" data-e="">✨ Automático (escolhe pelo nome)</button>`+EMOJIS.map(e=>`<button type="button" data-e="${e}" class="${e===atual?"on":""}">${e}</button>`).join("");
   grid.onclick=ev=>{const b=ev.target.closest("button");if(!b)return;onPick(b.dataset.e);grid.classList.add("hide")};
 }
 function rowMov(g){
-  if(g.t==="entrada") return `<button type="button" class="row" data-edit="${esc(g.id)}">${icE(emojiDe(g))}<div class="main"><div class="t">${esc(g.desc||"Entrada")}</div><div class="s">${esc(g.pag||"")} · ${fmtData(parse(g.data))}</div></div><div class="amt" style="color:var(--accent)">+${money(+g.valor)}</div></button>`;
+  if(g.t==="entrada") return `<button type="button" class="row" data-edit="${esc(g.id)}">${icE(emojiDe(g))}<div class="main"><div class="t">${esc(g.desc||"Entrada")}</div><div class="s">${esc(g.pag||"")} · ${fmtData(parse(g.data))}${g.conferido?' · <span style="color:var(--accent)">✓ depositado</span>':""}</div></div><div class="amt" style="color:var(--accent)">+${money(+g.valor)}</div></button>`;
   if(g.t==="fatura") return `<button type="button" class="row dim" data-edit="${esc(g.id)}">${icE(emojiDe(g))}<div class="main"><div class="t">${esc(g.desc)}</div><div class="s">Pagamento de fatura (não conta como gasto) · ${fmtData(parse(g.data))}</div></div><div class="amt">${money(+g.valor)}</div></button>`;
   return `<button type="button" class="row" data-edit="${esc(g.id)}">${icE(emojiDe(g))}<div class="main"><div class="t">${esc(g.desc||g.cat)}</div><div class="s">${esc(g.cat||"")} · ${esc(g.pag||"")} · ${fmtData(parse(g.data))}${g.conferido?' · <span style="color:var(--accent)">✓ no extrato</span>':""}</div></div><div class="amt">${money(+g.valor)}</div></button>`;
 }
@@ -163,7 +163,10 @@ async function importarComConferencia(pares,prog){
   for(const [id,o] of pares){
     if(items.some(i=>i.id===id||i.extratoId===id)) continue;
     const dO=parse(o.data);
-    const m=(o.t==="gasto"||o.t==="entrada")&&dO?manuais.filter(i=>!usados.has(i.id)&&i.t===o.t&&i.pag===o.pag&&Math.abs((+i.valor)-(+o.valor))<0.01&&parse(i.data)&&Math.abs(parse(i.data)-dO)<=DIAS)
+    const ehDepCheque=o.t==="entrada"&&/cheque|check/i.test(o.desc||"");
+    const mesmaConta=i=>i.pag===o.pag||(ehDepCheque&&i.pag==="Cheque");
+    const janela=i=>(i.pag==="Cheque"?12:5)*864e5;
+    const m=(o.t==="gasto"||o.t==="entrada")&&dO?manuais.filter(i=>!usados.has(i.id)&&i.t===o.t&&mesmaConta(i)&&Math.abs((+i.valor)-(+o.valor))<0.01&&parse(i.data)&&Math.abs(parse(i.data)-dO)<=janela(i))
       .sort((a,b)=>Math.abs(parse(a.data)-dO)-Math.abs(parse(b.data)-dO))[0]:null;
     if(m){usados.add(m.id);conferidos.push([m,id]);} else novos.push([id,o]);
   }
@@ -317,6 +320,7 @@ function adivinharCat(desc,tipo){
 }
 function adivinharConta(txt){
   const t=(txt||"").toLowerCase();
+  if(/cheque|\bcheck\b/.test(t)) return "Cheque";
   if(/consumers/.test(t)) return "Cartão Consumers";
   if(/amazon/.test(t)&&/cart[aã]o/.test(t)) return "Cartão Amazon";
   if(/macy/.test(t)) return "Cartão Macy's";
@@ -449,7 +453,7 @@ async function responder(txt){
     const {v,raw}=lerValor(txt);
     const B=w=>new RegExp("(?<![\\p{L}\\p{N}])(?:"+w+")(?![\\p{L}\\p{N}])","giu");
     let desc=txt.replace(raw,"")
-      .replace(B("cart[aã]o|d[eé]bito|dinheiro|cash|consumers|amazon|santander|macy'?s|zelle|3190"),"")
+      .replace(B("cart[aã]o|d[eé]bito|dinheiro|cash|cheque|check|consumers|amazon|santander|macy'?s|zelle|3190"),"")
       .replace(B("gastei|paguei|comprei|anota|lança|lanca|lançar|lancar|gasto de|saiu|recebi|ganhei|entrou|caiu|vendi|dólares|dolares|reais|dollars?|bucks|hoje|ontem"),"")
       .replace(B("no|na|num|numa|em|de|do|da|com|pra|para|pro|um|uma|o|a|e"),"").replace(/\s+/g," ").trim();
     desc=desc.charAt(0).toUpperCase()+desc.slice(1);
