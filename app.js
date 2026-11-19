@@ -1,6 +1,6 @@
 // Minhas Finanças — liga as telas ao Firebase (login, dados e notificações)
 import { firebaseConfig, vapidKey } from "./firebase-config.js";
-import { iniciarApp } from "./core.js?v=11";
+import { iniciarApp } from "./core.js?v=12";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { initializeFirestore, persistentLocalCache, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, writeBatch, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -167,11 +167,11 @@ async function abrirConfig() {
     const f = e.target.files[0]; if (!f) return;
     try {
       const lista = JSON.parse(await f.text());
-      const pares = lista.map(o => { const { id, ...rest } = o; return [id || crypto.randomUUID(), rest]; });
-      const doExtrato = pares.filter(([, o]) => o.origem === "extrato");
-      const outros = pares.filter(([, o]) => o.origem !== "extrato");
+      const pares = lista.map(o => { const { id, substituir, ...rest } = o; return [id || crypto.randomUUID(), rest, !!substituir]; });
+      const doExtrato = pares.filter(([, o, sub]) => o.origem === "extrato" && !sub).map(([id, o]) => [id, o]);
+      const outros = pares.filter(([, o, sub]) => o.origem !== "extrato" || sub).map(([id, o]) => [id, o]);
       if (outros.length) await store.bulk(outros);
-      let msg = outros.length ? outros.length + " itens restaurados. " : "";
+      let msg = outros.length ? outros.length + " itens atualizados. " : "";
       if (doExtrato.length) {
         const r = await ui.importarComConferencia(doExtrato);
         msg += `Extrato: ${r.novos} lançamentos novos` + (r.conferidos ? ` e ${r.conferidos} que você já tinha lançado (marcados com ✓, sem duplicar).` : ".");
