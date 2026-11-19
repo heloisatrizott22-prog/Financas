@@ -1,6 +1,6 @@
 // Minhas Finanças — liga as telas ao Firebase (login, dados e notificações)
 import { firebaseConfig, vapidKey } from "./firebase-config.js";
-import { iniciarApp } from "./core.js?v=12";
+import { iniciarApp } from "./core.js?v=13";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { initializeFirestore, persistentLocalCache, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, writeBatch, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -151,6 +151,8 @@ async function abrirConfig() {
     <label><input type="checkbox" name="lembreteExtrato" style="width:auto;margin-right:8px" ${prefs.lembreteExtrato === false ? "" : "checked"}>Lembrar no dia 5 de mandar os extratos</label>
     <label>Backup</label>
     <div class="btns" style="margin-top:0"><button type="button" class="btn sec" id="bk-exp">Baixar backup</button><label class="btn sec" style="text-align:center;margin:0;color:var(--ink);font-size:16px">Restaurar<input type="file" id="bk-imp" accept="application/json" style="display:none"></label></div>
+    <div class="btns" style="margin-top:8px"><button type="button" class="btn pri" id="bk-colar">📋 Colar atualização do Claude</button></div>
+    <div id="colar-box" class="hide" style="margin-top:8px"><textarea id="colar-txt" rows="5" placeholder="Toque e segure aqui → Colar"></textarea><div class="btns" style="margin-top:8px"><button type="button" class="btn pri" id="bk-colar-ok">Importar</button></div></div>
     <div class="btns"><button type="button" class="btn del" id="b-sair">Sair</button><button type="button" class="btn sec" id="b-fechar">Fechar</button><button type="button" class="btn pri" id="b-salvar-cfg">Salvar</button></div>
     <div class="err" id="f-err"></div>`;
   abrirSheet();
@@ -165,20 +167,22 @@ async function abrirConfig() {
   };
   $("#bk-imp").onchange = async e => {
     const f = e.target.files[0]; if (!f) return;
-    try {
-      const lista = JSON.parse(await f.text());
-      const pares = lista.map(o => { const { id, substituir, ...rest } = o; return [id || crypto.randomUUID(), rest, !!substituir]; });
-      const doExtrato = pares.filter(([, o, sub]) => o.origem === "extrato" && !sub).map(([id, o]) => [id, o]);
-      const outros = pares.filter(([, o, sub]) => o.origem !== "extrato" || sub).map(([id, o]) => [id, o]);
-      if (outros.length) await store.bulk(outros);
-      let msg = outros.length ? outros.length + " itens atualizados. " : "";
-      if (doExtrato.length) {
-        const r = await ui.importarComConferencia(doExtrato);
-        msg += `Extrato: ${r.novos} lançamentos novos` + (r.conferidos ? ` e ${r.conferidos} que você já tinha lançado (marcados com ✓, sem duplicar).` : ".");
-      }
-      $("#f-err").textContent = msg || "Nada novo nesse arquivo.";
-    } catch (_) { $("#f-err").textContent = "Esse arquivo não parece um backup ou extrato do app."; }
+    try { $("#f-err").textContent = await importarLista(JSON.parse(await f.text())); }
+    catch (_) { $("#f-err").textContent = "Esse arquivo não parece um backup ou extrato do app."; }
   };
+  $("#bk-colar").onclick = () => { $("#colar-box").classList.toggle("hide"); };
+  $("#bk-colar-ok").onclick = async () => {
+    const txt = $("#colar-txt").value.trim();
+    if (!txt) { $("#f-err").textContent = "Cole o texto que o Claude mandou."; return; }
+    try {
+      const ini = txt.indexOf("["), fim = txt.lastIndexOf("]");
+      const lista = JSON.parse(txt.slice(ini, fim + 1));
+      $("#f-err").textContent = "Importando…";
+      $("#f-err").textContent = await importarLista(lista);
+      $("#colar-txt").value = "";
+    } catch (_) { $("#f-err").textContent = "Não consegui ler esse texto. Copie de novo a mensagem inteira do Claude e cole aqui."; }
+  };
+
 
   $("#b-salvar-cfg").onclick = async () => {
     const fd = new FormData(form);
@@ -208,6 +212,20 @@ async function ativarNotificacoes() {
   } catch (err) {
     out.textContent = "Não consegui ativar: " + esc(err && err.message || "erro desconhecido");
   }
+}
+
+async function importarLista(lista) {
+  if (!Array.isArray(lista)) throw new Error("formato");
+  const pares = lista.map(o => { const { id, substituir, ...rest } = o; return [id || crypto.randomUUID(), rest, !!substituir]; });
+  const doExtrato = pares.filter(([, o, sub]) => o.origem === "extrato" && !sub).map(([id, o]) => [id, o]);
+  const outros = pares.filter(([, o, sub]) => o.origem !== "extrato" || sub).map(([id, o]) => [id, o]);
+  if (outros.length) await store.bulk(outros);
+  let msg = outros.length ? outros.length + " itens atualizados. " : "";
+  if (doExtrato.length) {
+    const r = await ui.importarComConferencia(doExtrato);
+    msg += `Extrato: ${r.novos} lançamentos novos` + (r.conferidos ? ` e ${r.conferidos} que você já tinha lançado (marcados com ✓, sem duplicar).` : ".");
+  }
+  return "✅ " + (msg || "Nada novo — já estava tudo no app.");
 }
 
 function abrirSheet() { $("#sheet-bg").style.display = "block"; requestAnimationFrame(() => $("#sheet").classList.add("open")); }
