@@ -1,6 +1,6 @@
 // Minhas Finanças — liga as telas ao Firebase (login, dados e notificações)
 import { firebaseConfig, vapidKey } from "./firebase-config.js";
-import { iniciarApp } from "./core.js?v=13";
+import { iniciarApp } from "./core.js?v=14";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { initializeFirestore, persistentLocalCache, collection, doc, setDoc, addDoc, deleteDoc, onSnapshot, writeBatch, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -225,6 +225,8 @@ async function importarLista(lista) {
     const r = await ui.importarComConferencia(doExtrato);
     msg += `Extrato: ${r.novos} lançamentos novos` + (r.conferidos ? ` e ${r.conferidos} que você já tinha lançado (marcados com ✓, sem duplicar).` : ".");
   }
+  await new Promise(r => setTimeout(r, 700));
+  try { await ui.reconciliar(); } catch (_) {}
   return "✅ " + (msg || "Nada novo — já estava tudo no app.");
 }
 

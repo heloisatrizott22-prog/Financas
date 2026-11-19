@@ -29,7 +29,7 @@ function proxima(a){
 }
 const porMes=a=>a.freq==="Anual"?(+a.valor||0)/12:(+a.valor||0);
 const porAno=a=>a.freq==="Anual"?(+a.valor||0):(+a.valor||0)*12;
-const of=t=>items.filter(i=>i.t===t);
+const of=t=>items.filter(i=>i.t===t&&!i.oculto);
 const soma=l=>l.reduce((s,x)=>s+(+x.valor||0),0);
 const ordemData=(a,b)=>(b.data||"").localeCompare(a.data||"")||(b.criado||0)-(a.criado||0);
 
@@ -69,7 +69,7 @@ function render(){
   // ---------- GASTOS ----------
   const [y,m]=mes.split("-").map(Number);
   $("#m-label").textContent=MESES[m-1][0].toUpperCase()+MESES[m-1].slice(1)+" "+y;
-  const movsMes=items.filter(i=>(i.t==="gasto"||i.t==="entrada"||i.t==="fatura")&&(i.data||"").slice(0,7)===mes);
+  const movsMes=items.filter(i=>!i.oculto&&(i.t==="gasto"||i.t==="entrada"||i.t==="fatura")&&(i.data||"").slice(0,7)===mes);
   const contasMes=["Todas",...CONTAS.filter(c=>movsMes.some(i=>i.pag===c)),...[...new Set(movsMes.map(i=>i.pag).filter(c=>c&&!CONTAS.includes(c)))]];
   if(!contasMes.includes(contaFiltro)) contaFiltro="Todas";
   $("#g-contas").innerHTML=contasMes.length>2?contasMes.map(c=>`<button class="chip ${c===contaFiltro?"on":""}" data-conta="${esc(c)}">${esc(c)}</button>`).join(""):"";
@@ -150,29 +150,55 @@ function montarGrade(grid,atual,onPick){
   grid.onclick=ev=>{const b=ev.target.closest("button");if(!b)return;onPick(b.dataset.e);grid.classList.add("hide")};
 }
 function rowMov(g){
-  if(g.t==="entrada") return `<button type="button" class="row" data-edit="${esc(g.id)}">${icE(emojiDe(g))}<div class="main"><div class="t">${esc(g.desc||"Entrada")}</div><div class="s">${esc(g.pag||"")} · ${fmtData(parse(g.data))}${g.conferido?' · <span style="color:var(--accent)">✓ depositado</span>':""}</div></div><div class="amt" style="color:var(--accent)">+${money(+g.valor)}</div></button>`;
+  if(g.t==="entrada") return `<button type="button" class="row" data-edit="${esc(g.id)}">${icE(emojiDe(g))}<div class="main"><div class="t">${esc(g.desc||"Entrada")}</div><div class="s">${esc(g.pag||"")} · ${fmtData(parse(g.data))}${g.conferido?' · <span style="color:var(--accent)">'+(g.pag==="Cheque"?"✓ depositado":"✓ no extrato")+'</span>':""}</div></div><div class="amt" style="color:var(--accent)">+${money(+g.valor)}</div></button>`;
   if(g.t==="fatura") return `<button type="button" class="row dim" data-edit="${esc(g.id)}">${icE(emojiDe(g))}<div class="main"><div class="t">${esc(g.desc)}</div><div class="s">Pagamento de fatura (não conta como gasto) · ${fmtData(parse(g.data))}</div></div><div class="amt">${money(+g.valor)}</div></button>`;
   return `<button type="button" class="row" data-edit="${esc(g.id)}">${icE(emojiDe(g))}<div class="main"><div class="t">${esc(g.desc||g.cat)}</div><div class="s">${esc(g.cat||"")} · ${esc(g.pag||"")} · ${fmtData(parse(g.data))}${g.conferido?' · <span style="color:var(--accent)">✓ no extrato</span>':""}</div></div><div class="amt">${money(+g.valor)}</div></button>`;
 }
 
 // Importa lançamentos do extrato sem duplicar o que já foi lançado à mão
-async function importarComConferencia(pares,prog){
-  const DIAS=5*864e5;
-  const manuais=items.filter(i=>(i.t==="gasto"||i.t==="entrada")&&i.origem!=="extrato"&&!i.conferido);
-  const usados=new Set(), novos=[], conferidos=[];
-  for(const [id,o] of pares){
-    if(items.some(i=>i.id===id||i.extratoId===id)) continue;
-    const dO=parse(o.data);
-    const ehDepCheque=o.t==="entrada"&&/cheque|check/i.test(o.desc||"");
-    const mesmaConta=i=>i.pag===o.pag||(ehDepCheque&&i.pag==="Cheque");
-    const janela=i=>(i.pag==="Cheque"?12:5)*864e5;
-    const m=(o.t==="gasto"||o.t==="entrada")&&dO?manuais.filter(i=>!usados.has(i.id)&&i.t===o.t&&mesmaConta(i)&&Math.abs((+i.valor)-(+o.valor))<0.01&&parse(i.data)&&Math.abs(parse(i.data)-dO)<=janela(i))
-      .sort((a,b)=>Math.abs(parse(a.data)-dO)-Math.abs(parse(b.data)-dO))[0]:null;
-    if(m){usados.add(m.id);conferidos.push([m,id]);} else novos.push([id,o]);
+// Um lançamento seu (manual) e um do extrato são o mesmo?
+function mesmoLancamento(m,e){
+  if(m.t!==e.t||Math.abs((+m.valor)-(+e.valor))>=0.01) return false;
+  const dm=parse(m.data), de=parse(e.data); if(!dm||!de) return false;
+  const d=(e.desc||"").toLowerCase();
+  const conta=m.pag===e.pag||(m.pag==="Zelle"&&/zelle/.test(d))||(m.pag==="Cheque"&&/cheque|check/.test(d));
+  if(!conta) return false;
+  const dif=(de-dm)/864e5;
+  if(m.pag==="Cheque") return dif>=-1&&dif<=12;
+  return Math.abs(dif)<=5;
+}
+// Confere tudo de novo: liga cada lançamento seu ao do extrato mais próximo e esconde a cópia do extrato
+async function reconciliar(lista){
+  const L=lista||items;
+  const M=L.filter(i=>(i.t==="gasto"||i.t==="entrada")&&i.origem!=="extrato");
+  const E=L.filter(i=>(i.t==="gasto"||i.t==="entrada")&&i.origem==="extrato");
+  const pares=[];
+  for(const m of M) for(const e of E) if(mesmoLancamento(m,e)) pares.push([Math.abs(parse(e.data)-parse(m.data)),m,e]);
+  pares.sort((a,b)=>a[0]-b[0]);
+  const mParaE=new Map(), eUsado=new Set();
+  for(const [,m,e] of pares){ if(mParaE.has(m.id)||eUsado.has(e.id)) continue; mParaE.set(m.id,e.id); eUsado.add(e.id); }
+  let mud=0;
+  for(const m of M){
+    const xid=mParaE.get(m.id)||null;
+    if(!!m.conferido!==!!xid||(m.extratoId||null)!==xid){ const {id,...r}=m; await store.save(id,Object.assign({},r,{conferido:!!xid,extratoId:xid})); mud++; }
   }
+  for(const e of E){
+    const oc=eUsado.has(e.id);
+    if(!!e.oculto!==oc){ const {id,...r}=e; await store.save(id,Object.assign({},r,{oculto:oc})); mud++; }
+  }
+  return {conferidos:eUsado.size,mudancas:mud,usados:eUsado};
+}
+
+// Importa lançamentos do extrato sem duplicar o que já foi lançado à mão
+async function importarComConferencia(pares,prog){
+  const existe=new Set(items.map(i=>i.id));
+  const novos=pares.filter(([id])=>!existe.has(id));
   if(novos.length) await store.bulk(novos,prog);
-  for(const [m,xid] of conferidos){const {id,...r}=m; await store.save(id,Object.assign({},r,{conferido:true,extratoId:xid}));}
-  return {novos:novos.length,conferidos:conferidos.length};
+  const novosIds=new Set(novos.map(([id])=>id));
+  const junto=[...items.filter(i=>!novosIds.has(i.id)),...novos.map(([id,o])=>Object.assign({id},o))];
+  const r=await reconciliar(junto);
+  const conf=novos.filter(([id])=>r.usados.has(id)).length;
+  return {novos:novos.length-conf,conferidos:conf};
 }
 
 async function importarExtratos(){
@@ -546,6 +572,9 @@ window.addEventListener("hashchange",rota);
 setTimeout(rota,0);
 
 render();
-store.subscribe(list=>{items=list;render()});
-return { render, abrir, abrirLancar, abrirChat, perguntar, importarComConferencia, getItems:()=>items };
+let jaConferiu=false;
+store.subscribe(list=>{items=list;render();
+  if(!jaConferiu&&store.ready()&&items.some(i=>i.origem==="extrato")){ jaConferiu=true; setTimeout(()=>reconciliar().catch(()=>{}),1500); }
+});
+return { render, abrir, abrirLancar, abrirChat, perguntar, importarComConferencia, reconciliar, getItems:()=>items };
 }
